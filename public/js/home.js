@@ -10,7 +10,7 @@
     const n = s.counts ? s.counts[cat] : 0;
     const bg = h('div', { class: 'bg' });
     if (cover) bg.append(h('img', { class: 'cover', src: cover, alt: '', loading: 'eager', decoding: 'async' }));
-    else { const art = h('div', { class: 'art' }); art.append(svgEl(ART[cat])); bg.append(art); }
+    else { const art = h('div', { class: 'art' }); art.append(svgEl(SCENE[cat])); bg.append(art); }
     tiles.append(h('a', { class: 'tile ' + cat, href: '/c/' + cat },
       bg,
       h('div', { class: 'txt' },

@@ -20,7 +20,7 @@ body.adm{background:var(--paper)}
 .panel h2{margin:0 0 12px;font-size:1.1rem}
 .login{max-width:380px;margin:12vh auto;padding:0 16px}
 label.f{display:block;margin-bottom:14px;font-weight:600;font-size:.95rem}
-label.f small{font-weight:400;color:var(--muted)}
+label.f small{color:var(--muted)}
 input[type=text],input[type=password],input[type=tel],textarea,select{width:100%;font:inherit;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);min-height:44px;margin-top:4px}
 textarea{min-height:110px;resize:vertical;line-height:1.8}
 input:focus,textarea:focus,select:focus{outline:none;border-color:var(--pine)}

@@ -1,30 +1,27 @@
 # سایت موجودی املاک و خودرو
 
-بنگاه املاک و نمایشگاه خودرو مهدی نوری. سایت ساده با دو دسته‌بندی (املاک / خودرو)، صفحهٔ آگهی و پنل مدیریت. بدون پایگاه‌داده؛ همه‌چیز در پوشهٔ `data/` ذخیره می‌شود.
+بنگاه املاک و نمایشگاه خودرو مهدی نوری. سایت ساده با دو دسته‌بندی (املاک / خودرو)، صفحهٔ آگهی و پنل مدیریت. بدون پایگاه‌داده؛ همه‌چیز (آگهی‌ها، عکس‌ها، ویدیوها) در یک پوشهٔ داده ذخیره می‌شود. فونت: شریف.
 
-## اجرا روی سرور (Ubuntu)
+## نصب روی سرور (Ubuntu) — ساب‌دامین `mehdinoori.enetvip.com`
+
+۱. رکورد DNS: یک رکورد `A` برای `mehdinoori` بسازید که به IP سرور اشاره کند.
+
+۲. روی سرور:
 
 ```bash
-sudo apt install -y nodejs npm nginx          # Node.js 18 یا بالاتر
-sudo git clone https://github.com/alikaidkhordeh/amlak.git /opt/amlak
-cd /opt/amlak
-sudo npm install --omit=dev                    # فقط برای بهینه‌سازی خودکار عکس‌ها (اختیاری)
-sudo cp .env.example .env && sudo nano .env    # رمز مدیریت را بگذارید
-sudo chown -R www-data:www-data /opt/amlak
-
-sudo cp deploy/amlak.service /etc/systemd/system/
-sudo systemctl daemon-reload && sudo systemctl enable --now amlak
-
-sudo cp deploy/nginx.conf /etc/nginx/sites-available/amlak   # ساب‌دامین را داخلش بنویسید
-sudo ln -s /etc/nginx/sites-available/amlak /etc/nginx/sites-enabled/
-sudo nginx -t && sudo systemctl reload nginx
-sudo apt install -y certbot python3-certbot-nginx && sudo certbot --nginx -d sub.example.com   # HTTPS
+sudo git clone https://github.com/alikaidkhordeh/amlak.git /opt/mehdinoori
+cd /opt/mehdinoori
+sudo bash deploy/install.sh mehdinoori.enetvip.com
 ```
 
-- پنل مدیریت: `https://ساب‌دامین/admin`
-- اگر `ADMIN_PASSWORD` را تنظیم نکنید، رمز در `data/admin-password.txt` ساخته می‌شود.
-- بروزرسانی: `cd /opt/amlak && sudo git pull && sudo systemctl restart amlak`
-- نسخهٔ پشتیبان: کل پوشهٔ `data/` را کپی کنید (اطلاعات + عکس‌ها و ویدیوها).
+اسکریپت خودکار Node.js و nginx را نصب می‌کند، یک پورت آزاد برمی‌دارد (با سرویس‌های دیگر سرور قاطی نمی‌شود)، سرویس `mehdinoori` را می‌سازد، nginx را برای ساب‌دامین تنظیم می‌کند و HTTPS می‌گیرد. در پایان آدرس سایت و رمز پنل را چاپ می‌کند.
 
-## فونت
-اگر فایل `Vazirmatn.woff2` را در `public/fonts/` بگذارید، سایت با فونت وزیرمتن نمایش داده می‌شود؛ در غیر این صورت از فونت فارسی خود دستگاه استفاده می‌شود.
+- پنل مدیریت: `https://mehdinoori.enetvip.com/admin`
+- بروزرسانی: `cd /opt/mehdinoori && sudo git pull && sudo bash deploy/install.sh mehdinoori.enetvip.com`
+- لاگ: `sudo journalctl -u mehdinoori -n 50 --no-pager`
+- پشتیبان: پوشهٔ `/var/lib/mehdinoori` (اطلاعات + عکس‌ها و ویدیوها)
+
+## اجرای محلی
+```bash
+node server.js     # http://127.0.0.1:3000  (رمز پنل در data/admin-password.txt)
+```
