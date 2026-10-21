@@ -1,0 +1,17 @@
+[Unit]
+Description=Amlak website (real estate & cars)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/amlak
+EnvironmentFile=-/opt/amlak/.env
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=3
+User=www-data
+Group=www-data
+
+[Install]
+WantedBy=multi-user.target

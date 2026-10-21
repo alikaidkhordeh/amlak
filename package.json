@@ -1,0 +1,11 @@
+{
+  "name": "amlak",
+  "version": "1.0.0",
+  "description": "سایت موجودی املاک و خودرو — بنگاه املاک و نمایشگاه خودرو مهدی نوری",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" },
+  "optionalDependencies": { "sharp": "^0.33.0" },
+  "license": "UNLICENSED",
+  "private": true
+}
