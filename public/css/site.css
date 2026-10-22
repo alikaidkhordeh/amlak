@@ -101,12 +101,13 @@ main{flex:1}
 @keyframes bar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 
 /* ورود اولیه */
-.hero .shot,.hero .ptxt>*{opacity:0}
-.hero.ready .shot{opacity:1}
-.hero.ready .ptxt>*{opacity:1;animation:up .9s var(--ease-out) both}
-.hero.ready .ptxt>*:nth-child(2){animation-delay:.08s}
-.hero.ready .ptxt>*:nth-child(3){animation-delay:.16s}
-.hero.ready .ptxt>*:nth-child(4){animation-delay:.24s}
+/* فقط با CSS؛ حتی اگر جاوااسکریپت اجرا نشود همه‌چیز دیده می‌شود */
+.hero .shot{animation:fadein 1s .15s both}
+.hero .ptxt>*{animation:up .9s var(--ease-out) both}
+.hero .ptxt>*:nth-child(2){animation-delay:.08s}
+.hero .ptxt>*:nth-child(3){animation-delay:.16s}
+.hero .ptxt>*:nth-child(4){animation-delay:.24s}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
 @keyframes up{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
 @media (hover:hover) and (min-width:861px){.side:hover{flex-grow:1.28}}
 
@@ -252,22 +253,33 @@ details.qa p{margin:0 0 14px;white-space:pre-wrap;color:#33434c}
 /* ---------- واکنش‌گرا ---------- */
 @media (max-width:860px){
   .hero{flex-direction:column;min-height:0}
-  .side{flex:none;min-height:auto;padding:28px 16px 34px;gap:16px}
-  .side.property{padding-top:96px}
+  .side{flex:none;min-height:auto;padding:20px 16px 26px;gap:12px}
+  .side.property{padding-top:80px}
   .side+.side::before{inset-block:0 auto;inset-inline:0;width:auto;height:1px;background:linear-gradient(90deg,transparent,rgba(201,162,102,.6),transparent)}
-  .duo{flex:none;height:min(60vw,320px);min-height:0;width:100%}
+  .duo{flex:none;height:min(54vw,260px);min-height:0;width:100%}
   .shot{width:72%}
-  .dots{inset-block-start:auto;top:26px;inset-inline-end:16px}
-  .side.property .dots{top:96px}
-  .ptxt h2{font-size:clamp(2.4rem,9vw,3.4rem)}
+  .dots{inset-block-start:auto;top:18px;inset-inline-end:16px}
+  .side.property .dots{top:80px}
+  .ptxt h2{font-size:clamp(2.2rem,10vw,3rem);margin:0}
+  .eyebrow{font-size:.82rem}
+  .types{font-size:.9rem}
+  .prow{margin-top:12px;gap:10px 14px}
+  .go{min-height:46px;padding:5px 18px 5px 10px;font-size:.95rem}
+  .go .ar{width:32px;height:32px}
   .item-grid{grid-template-columns:minmax(0,1fr);gap:16px}
   .gal,.det,.info{grid-column:1;grid-row:auto}
   .info{position:static;padding:18px}
   .spec{grid-template-columns:1fr}
 }
 @media (max-width:600px){
+  .top-in{padding:10px 14px;gap:10px}
+  .brand{gap:9px}
+  .brand .mark{width:36px;height:36px;border-radius:10px}
+  .brand .mark svg{width:20px;height:20px}
+  .brand .bn{font-size:.88rem;line-height:1.55}
   .brand .bt{display:none}
-  .nav a{padding:6px 10px;font-size:.88rem}
+  .nav{gap:2px}
+  .nav a{padding:4px 10px;font-size:.85rem}
   .grid{grid-template-columns:1fr;gap:16px}
   .sort{flex:1 1 100%}
   .sec{padding:18px}

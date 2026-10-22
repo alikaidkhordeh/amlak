@@ -308,10 +308,18 @@ function serveFile(req, res, full, cache) {
     fs.createReadStream(full).pipe(res);
   });
 }
+// نسخهٔ فایل‌های css/js: با هر اجرای سرور (هر آپدیت) عوض می‌شود تا مرورگر و گوشی فایل قدیمی را از حافظه نخوانند
+const BUILD = Date.now().toString(36);
+const withVersion = (html) => String(html).replace(/((?:href|src)="\/(?:css|js|admin)\/[^"?]+\.(?:css|js))"/g, '$1?v=' + BUILD + '"');
 function notFound(res) {
-  fs.readFile(path.join(PUB, '404.html'), (e, buf) => send(res, 404, e ? 'Not found' : buf, { 'Content-Type': 'text/html; charset=utf-8' }));
+  fs.readFile(path.join(PUB, '404.html'), 'utf8', (e, html) => send(res, 404, e ? 'Not found' : withVersion(html), { 'Content-Type': 'text/html; charset=utf-8' }));
 }
-function page(req, res, file) { serveFile(req, res, path.join(PUB, file), 'no-cache'); }
+function page(req, res, file) {
+  fs.readFile(path.join(PUB, file), 'utf8', (err, html) => {
+    if (err) return notFound(res);
+    send(res, 200, req.method === 'HEAD' ? '' : withVersion(html), { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' });
+  });
+}
 
 // صفحهٔ آگهی با متای اشتراک‌گذاری (برای نمایش زیبا در اینستاگرام/تلگرام/واتساپ)
 function itemPage(req, res, id) {
@@ -331,7 +339,7 @@ function itemPage(req, res, id) {
       `<meta property="og:url" content="${esc(base + '/l/' + l.id)}">`,
       img ? `<meta property="og:image" content="${esc(base + img.url)}">` : ''
     ].join('\n');
-    send(res, 200, html.replace('<!--OG-->', og), { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' });
+    send(res, 200, withVersion(html.replace('<!--OG-->', og)), { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' });
   });
 }
 
@@ -502,8 +510,10 @@ const server = http.createServer(async (req, res) => {
     const full = path.join(PUB, path.normalize(p));
     if (!full.startsWith(PUB + path.sep) || /(^|[\\/])\./.test(path.relative(PUB, full))) return notFound(res);
     if (path.basename(full) === 'item.html' || path.basename(full) === 'index.html' && full === path.join(PUB, 'index.html')) return notFound(res);
+    if (/\.html$/.test(full)) return page(req, res, path.relative(PUB, full));
     const dev = process.env.NODE_ENV !== 'production';
-    return serveFile(req, res, full, dev ? 'no-cache' : 'public, max-age=3600');
+    const versioned = u.searchParams.has('v');
+    return serveFile(req, res, full, dev ? 'no-cache' : versioned ? 'public, max-age=31536000, immutable' : 'public, max-age=3600');
   } catch (e) {
     console.error(e);
     if (!res.headersSent) json(res, 500, { error: 'خطای سرور' });

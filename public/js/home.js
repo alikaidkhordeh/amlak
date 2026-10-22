@@ -4,13 +4,6 @@
   const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const CYCLE = 6000;
 
-  /* ورود نرم بعد از آماده شدن عکس جلو */
-  const firstImgs = [...hero.querySelectorAll('.shot.front img')];
-  Promise.race([
-    Promise.all(firstImgs.map((im) => (im.complete ? 0 : new Promise((r) => { im.onload = im.onerror = r; })))),
-    new Promise((r) => setTimeout(r, 1200))
-  ]).then(() => requestAnimationFrame(() => hero.classList.add('ready')));
-
   /* جابه‌جایی دو عکس هر نیمه (املاک: ویلا/آپارتمان — خودرو: سورن/BMW) */
   function cycle(panel, offset) {
     const shots = [...panel.querySelectorAll('.shot')];
