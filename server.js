@@ -62,15 +62,16 @@ const DEFAULT_SETTINGS = {
       questions: ['وضعیت سند چیست؟', 'قابل معاوضه است؟', 'امکان دریافت وام دارد؟', 'زمان بازدید چه موقع است؟']
     },
     car: {
-      fields: ['سال ساخت', 'کارکرد', 'رنگ', 'نوع سوخت', 'گیربکس', 'وضعیت بدنه', 'بیمه شخص ثالث', 'شهر پلاک'],
+      fields: ['نوع خودرو', 'سال ساخت', 'کارکرد', 'رنگ', 'نوع سوخت', 'گیربکس', 'وضعیت بدنه', 'بیمه شخص ثالث', 'شهر پلاک'],
       questions: ['رنگ‌شدگی دارد؟', 'تصادفی بوده است؟', 'قابل معاوضه است؟', 'شرایط پرداخت چگونه است؟']
     }
   }
 };
-let db = { settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), listings: [] };
+let db = { settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), listings: [], meta: {} };
 try {
   const raw = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
   db.listings = Array.isArray(raw.listings) ? raw.listings : [];
+  db.meta = raw.meta && typeof raw.meta === 'object' ? raw.meta : {};
   db.settings = Object.assign({}, DEFAULT_SETTINGS, raw.settings || {});
   db.settings.covers = Object.assign({}, DEFAULT_SETTINGS.covers, (raw.settings || {}).covers || {});
   db.settings.templates = Object.assign({}, DEFAULT_SETTINGS.templates, (raw.settings || {}).templates || {});
@@ -152,10 +153,27 @@ function unlinkUpload(url) {
   const mm = /^\/uploads\/([a-f0-9]{16}\.[a-z0-9]{2,5})$/.exec(String(url || ''));
   if (mm) fs.unlink(path.join(UP, mm[1]), () => {});
 }
+// خلاصهٔ کارت: نوع (ویلایی/آپارتمان، ایرانی/خارجی) و حداکثر سه مشخصهٔ کلیدی — فقط اگر پر شده باشند
+const KIND_LABEL = { property: 'نوع ملک', car: 'نوع خودرو' };
+const KEY_SPECS = { property: ['متراژ', 'تعداد اتاق', 'سال ساخت'], car: ['سال ساخت', 'کارکرد', 'گیربکس'] };
+function keySpecs(l) {
+  const get = (label) => ((l.fields || []).find((f) => f.label === label) || {}).value || '';
+  return KEY_SPECS[l.category].map((label) => {
+    let v = get(label);
+    if (!v) return null;
+    if (/^[\d۰-۹]+$/.test(v)) {
+      if (label === 'تعداد اتاق') v += ' خواب';
+      else if (label === 'سال ساخت') v = (l.category === 'car' ? 'مدل ' : 'ساخت ') + v;
+      else if (label === 'متراژ') v += ' متر';
+    }
+    return { label, value: v };
+  }).filter(Boolean);
+}
 function summary(l) {
   const firstImg = (l.media || []).find((m) => m.type === 'image');
+  const kind = ((l.fields || []).find((f) => f.label === KIND_LABEL[l.category]) || {}).value || '';
   return {
-    id: l.id, category: l.category, title: l.title, price: l.price,
+    id: l.id, category: l.category, title: l.title, price: l.price, kind, specs: keySpecs(l),
     address: l.address ? l.address.slice(0, 80) : '', createdAt: l.createdAt, sold: !!l.sold,
     cover: firstImg ? firstImg.url : '', hasVideo: (l.media || []).some((m) => m.type === 'video'), mediaCount: (l.media || []).length
   };
@@ -183,6 +201,37 @@ function cleanupOrphans() {
     }
   });
 }
+
+// ---------- آگهی‌های نمونه (seed/demo.json) ----------
+// فقط یک بار اضافه می‌شوند؛ اگر مدیر بعداً حذفشان کند دوباره برنمی‌گردند. آگهی‌های واقعی دست نمی‌خورند.
+function seedDemo() {
+  const dir = path.join(__dirname, 'seed');
+  let demo;
+  try { demo = JSON.parse(fs.readFileSync(path.join(dir, 'demo.json'), 'utf8')); } catch (_) { return; }
+  if (!demo.version || db.meta.seeded === demo.version) return;
+  const now = Date.now();
+  let added = 0;
+  (demo.listings || []).forEach((d, i) => {
+    if (!/^[a-f0-9]{8}$/.test(d.id || '') || db.listings.some((x) => x.id === d.id)) return;
+    const media = [];
+    for (const f of d.media || []) {
+      if (!/^[a-f0-9]{16}\.webp$/.test(f)) continue;
+      try { fs.copyFileSync(path.join(dir, 'media', f), path.join(UP, f)); media.push({ url: '/uploads/' + f }); } catch (_) { /* */ }
+    }
+    const r = cleanListing(Object.assign({}, d, { media }), null);
+    if (r.error) return;
+    r.value.id = d.id;
+    r.value.createdAt = r.value.updatedAt = new Date(now - i * 7 * 3600e3).toISOString();
+    db.listings.push(r.value);
+    added++;
+  });
+  const car = db.settings.templates.car;
+  if (car && Array.isArray(car.fields) && !car.fields.includes('نوع خودرو')) car.fields.unshift('نوع خودرو');
+  db.meta.seeded = demo.version;
+  saveSync();
+  if (added) console.log(added + ' آگهی نمونه اضافه شد');
+}
+seedDemo();
 
 // ---------- احراز هویت ----------
 const sign = (v) => crypto.createHmac('sha256', SECRET).update(v).digest('hex');

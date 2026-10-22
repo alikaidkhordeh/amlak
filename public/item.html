@@ -3,18 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#12202b">
+<meta name="theme-color" content="#0d1316">
 <!--OG-->
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/Estedad-wght.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/css/site.css">
 </head>
 <body data-keep-title="1">
-<header class="top"><a class="brand" id="brand" href="/">بنگاه املاک و نمایشگاه خودرو مهدی نوری</a></header>
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="/"><span class="mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M10 20v-5.5h4V20"/></svg></span><span><span class="bn" id="brand">بنگاه املاک و نمایشگاه خودرو مهدی نوری</span><span class="bt" id="tagline" hidden></span></span></a>
+    <nav class="nav" aria-label="بخش‌ها"><a href="/c/property" data-cat="property">املاک</a><a href="/c/car" data-cat="car">خودرو</a></nav>
+  </div>
+</header>
 <main class="wrap">
-  <div class="crumb"><a class="back" href="/" id="back">بازگشت</a></div>
+  <div class="ihead"><div class="crumbs" id="crumbs"><a href="/">خانه</a></div></div>
   <div id="root"></div>
 </main>
-<footer class="foot" id="foot" hidden><div class="contacts" id="contacts"></div></footer>
+<footer class="foot" id="foot"></footer>
 <script src="/js/common.js"></script>
 <script src="/js/item.js"></script>
 </body>

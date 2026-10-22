@@ -3,21 +3,59 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#12202b">
+<meta name="theme-color" content="#0d1316">
 <title>بنگاه املاک و نمایشگاه خودرو مهدی نوری</title>
-<meta name="description" content="موجودی املاک و خودرو">
+<meta name="description" content="موجودی املاک و خودرو — ویلایی، آپارتمان، خودروی ایرانی و خارجی">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/Estedad-wght.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/css/site.css">
 </head>
 <body>
-<header class="top">
-  <a class="brand" id="brand" href="/">بنگاه املاک و نمایشگاه خودرو مهدی نوری</a>
-  <p class="tagline" id="tagline" hidden></p>
+<header class="top over">
+  <div class="top-in">
+    <a class="brand" href="/"><span class="mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M10 20v-5.5h4V20"/></svg></span><span><span class="bn" id="brand">بنگاه املاک و نمایشگاه خودرو مهدی نوری</span><span class="bt" id="tagline" hidden></span></span></a>
+    <nav class="nav" aria-label="بخش‌ها"><a href="/c/property">املاک</a><a href="/c/car">خودرو</a></nav>
+  </div>
 </header>
-<main class="home">
-  <nav class="tiles" aria-label="دسته‌بندی‌ها" id="tiles"></nav>
+<main>
+<section class="hero" id="hero" aria-label="انتخاب بخش">
+  <a class="side property" href="/c/property">
+    <div class="amb" aria-hidden="true"><img class="on" src="/img/hero/villa-900.webp" alt=""><img src="/img/hero/apartment-900.webp" alt=""></div>
+    <div class="dots" aria-hidden="true"><span class="on"></span><span></span></div>
+    <div class="duo" aria-hidden="true">
+      <figure class="shot a front"><img src="/img/hero/villa-1500.webp" srcset="/img/hero/villa-900.webp 900w,/img/hero/villa-1500.webp 1500w" sizes="(max-width:860px) 72vw,36vw" alt="" fetchpriority="high"><figcaption><i></i>ویلایی</figcaption></figure>
+      <figure class="shot b back"><img src="/img/hero/apartment-1500.webp" srcset="/img/hero/apartment-900.webp 900w,/img/hero/apartment-1500.webp 1500w" sizes="(max-width:860px) 72vw,36vw" alt=""><figcaption><i></i>آپارتمانی</figcaption></figure>
+    </div>
+    <div class="ptxt">
+      <span class="eyebrow">خرید و فروش ملک</span>
+      <h2>املاک</h2>
+      <p class="types">ویلایی · آپارتمان · زمین · تجاری</p>
+      <div class="prow"><span class="go">مشاهدهٔ آگهی‌ها<span class="ar"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></span></span><span class="count" data-count="property"></span></div>
+    </div>
+  </a>
+  <a class="side car" href="/c/car">
+    <div class="amb" aria-hidden="true"><img class="on" src="/img/hero/soren-900.webp" alt=""><img src="/img/hero/bmw-900.webp" alt=""></div>
+    <div class="dots" aria-hidden="true"><span class="on"></span><span></span></div>
+    <div class="duo" aria-hidden="true">
+      <figure class="shot a front"><img src="/img/hero/soren-1500.webp" srcset="/img/hero/soren-900.webp 900w,/img/hero/soren-1500.webp 1500w" sizes="(max-width:860px) 72vw,36vw" alt="" fetchpriority="high"><figcaption><i></i>سورن پلاس · ایرانی</figcaption></figure>
+      <figure class="shot b back"><img src="/img/hero/bmw-1500.webp" srcset="/img/hero/bmw-900.webp 900w,/img/hero/bmw-1500.webp 1500w" sizes="(max-width:860px) 72vw,36vw" alt=""><figcaption><i></i>BMW سری ۵ · خارجی</figcaption></figure>
+    </div>
+    <div class="ptxt">
+      <span class="eyebrow">نمایشگاه خودرو</span>
+      <h2>خودرو</h2>
+      <p class="types">ایرانی · خارجی · صفر و کارکرده</p>
+      <div class="prow"><span class="go">مشاهدهٔ آگهی‌ها<span class="ar"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></span></span><span class="count" data-count="car"></span></div>
+    </div>
+  </a>
+</section>
+<section class="latest" id="latest" hidden>
+  <div class="wrap">
+    <div class="sec-head"><div><span class="eyebrow">آخرین موجودی</span><h2>تازه‌ترین آگهی‌ها</h2></div></div>
+    <div class="grid" id="latestGrid"></div>
+  </div>
+</section>
 </main>
-<footer class="foot" id="foot" hidden><div class="contacts" id="contacts"></div></footer>
+<footer class="foot" id="foot"></footer>
 <script src="/js/common.js"></script>
 <script src="/js/home.js"></script>
 </body>

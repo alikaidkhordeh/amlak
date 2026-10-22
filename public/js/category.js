@@ -1,43 +1,59 @@
 'use strict';
 (async () => {
   const cat = location.pathname.split('/')[2] === 'car' ? 'car' : 'property';
-  const back = document.getElementById('back');
-  back.prepend(svgEl(CHEVRON.replace('M15 5l-7 7 7 7', 'M9 5l7 7-7 7')));
-  document.getElementById('title').textContent = 'موجودی ' + CAT_NAME[cat];
+  const HERO = { property: '/img/hero/villa-900.webp', car: '/img/hero/bmw-900.webp' };
+  document.getElementById('title').textContent = CAT_NAME[cat];
+  document.getElementById('crumb').textContent = CAT_NAME[cat];
+  document.querySelector('.nav a[data-cat="' + cat + '"]').classList.add('on');
 
   const [s, list] = await Promise.all([
     getSettings(),
     fetch('/api/listings?category=' + cat).then((r) => r.json()).catch(() => null)
   ]);
   applyBrand(s);
-  document.title = 'موجودی ' + CAT_NAME[cat] + (s.siteName ? ' | ' + s.siteName : '');
+  renderFooter(s);
+  document.title = CAT_NAME[cat] + (s.siteName ? ' | ' + s.siteName : '');
+  document.getElementById('pbg').style.backgroundImage = 'url("' + ((s.covers && s.covers[cat]) || HERO[cat]) + '")';
 
   const grid = document.getElementById('grid');
   const sub = document.getElementById('sub');
-  if (!list) { grid.append(h('div', { class: 'empty', style: 'grid-column:1/-1' }, 'بارگذاری انجام نشد. صفحه را دوباره باز کنید.')); return; }
-  if (!list.length) {
-    sub.textContent = '';
-    grid.append(h('div', { class: 'empty', style: 'grid-column:1/-1' }, 'فعلاً موردی ثبت نشده است. بعداً سر بزنید.'));
-  } else {
-    sub.textContent = fa(list.length) + ' مورد';
-  }
+  if (!list) { grid.append(h('div', { class: 'empty' }, 'بارگذاری انجام نشد. صفحه را دوباره باز کنید.')); return; }
+  const active = list.filter((l) => !l.sold).length;
+  sub.textContent = list.length ? fa(active) + ' آگهی فعال' : '';
 
-  for (const l of list || []) {
-    const thumb = h('div', { class: 'thumb' });
-    if (l.cover) thumb.append(h('img', { src: l.cover, alt: '', loading: 'lazy', decoding: 'async' }));
-    else { const ph = h('div', { class: 'ph' }); ph.append(svgEl(ART[l.category])); thumb.append(ph); }
-    if (l.hasVideo) thumb.append(h('span', { class: 'badge' }, 'ویدیو'));
-    if (l.sold) thumb.append(h('span', { class: 'badge sold' }, 'فروخته شد'));
-    const pr = shortPrice(l.price, s.currency);
-    grid.append(h('a', { class: 'card' + (l.sold ? ' is-sold' : ''), href: '/l/' + l.id },
-      thumb,
-      h('div', { class: 'body' },
-        h('h3', null, fa(l.title)),
-        pr ? h('div', { class: 'price' }, pr) : null,
-        l.address ? h('div', { class: 'addr' }, fa(l.address)) : null,
-        l.createdAt ? h('div', { class: 'date' }, 'تاریخ انتشار: ' + jdate(l.createdAt)) : null)));
+  /* دکمه‌های نوع (ویلایی/آپارتمان یا ایرانی/خارجی) فقط اگر در آگهی‌ها ثبت شده باشد */
+  const kinds = [...new Set(list.map((l) => l.kind).filter(Boolean))];
+  let kind = '', q = '', sort = 'new';
+  const kbox = document.getElementById('kinds');
+  if (kinds.length > 1) {
+    const draw = () => kbox.replaceChildren(...['', ...kinds].map((k) =>
+      h('button', { type: 'button', class: k === kind ? 'on' : '', onclick: () => { kind = k; draw(); render(); } }, k ? fa(k) : 'همه')));
+    draw();
+    kbox.hidden = false;
   }
+  document.getElementById('q').addEventListener('input', (e) => { q = e.target.value.trim(); render(); });
+  document.getElementById('sort').addEventListener('change', (e) => { sort = e.target.value; render(); });
 
-  const links = contactLinks(s, 'chip');
-  if (links.length) { document.getElementById('contacts').append(...links); document.getElementById('foot').hidden = false; }
+  const norm = (t) => String(t || '').replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/ي/g, 'ی').replace(/ك/g, 'ک').toLowerCase();
+  const num = (p) => (/^\d+$/.test(p || '') ? Number(p) : null);
+  function render() {
+    let items = list.filter((l) => (!kind || l.kind === kind) &&
+      (!q || norm([l.title, l.address, l.kind, (l.specs || []).map((x) => x.value).join(' ')].join(' ')).includes(norm(q))));
+    if (sort !== 'new') {
+      const dir = sort === 'cheap' ? 1 : -1;
+      items = items.slice().sort((a, b) => {
+        const x = num(a.price), y = num(b.price);
+        if (x == null && y == null) return 0;
+        if (x == null) return 1;
+        if (y == null) return -1;
+        return (x - y) * dir;
+      });
+    }
+    grid.replaceChildren();
+    if (!list.length) grid.append(h('div', { class: 'empty' }, 'فعلاً موردی ثبت نشده است. بعداً سر بزنید.'));
+    else if (!items.length) grid.append(h('div', { class: 'empty' }, 'موردی با این مشخصات پیدا نشد.'));
+    items.forEach((l) => grid.append(listingCard(l, s)));
+    reveal(grid);
+  }
+  render();
 })();
